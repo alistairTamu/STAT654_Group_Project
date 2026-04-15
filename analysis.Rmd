@@ -1,0 +1,254 @@
+---
+title: "Terrorist Attacks Metrics"
+author: "Meredith Santiago"
+date: "2026-04-09"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE, results='hide'}
+library(tidyverse)
+library(psych)
+library(caret)
+library(skimr)
+library(readxl)
+library(dplyr)
+
+
+gtd_data <- read_excel("globalterrorismdb_0221dist.xlsx")
+```
+
+```{r}
+# Data points
+dim(gtdclean)
+skim(gtdclean)
+
+numeric_vars <- gtdclean %>% select(where(is.numeric))
+summary(numeric_vars)
+```
+
+```{r}
+# Clean df
+gtdclean <- gtd_data %>%
+  select(
+  iyear, nkill, nwound, property, propextent, crit1, crit2,
+  crit3, region, region_txt, attacktype1, attacktype2,
+  attacktype3, weaptype1, weaptype2, weaptype3, targtype1,
+  claimed, success, attacktype1_txt, weaptype1_txt, weaptype2_txt, weaptype3
+  )
+```
+
+```{r, echo=FALSE, results='hide'}
+str(gtdclean)
+glimpse(gtdclean)
+
+summary(gtdclean)
+
+
+describe(numeric_vars)
+
+categorical_vars <- gtdclean %>% select(where(is.character))
+
+summary(categorical_vars)
+
+# Average deaths
+mean(gtdclean$nkill, na.rm = TRUE)
+
+# Average injuries
+mean(gtdclean$nwound, na.rm = TRUE)
+
+# Max deaths (most severe attack)
+max(gtdclean$nkill, na.rm = TRUE)
+
+# Total deaths across dataset
+sum(gtdclean$nkill, na.rm = TRUE)
+
+```
+
+```{r}
+byyear_stats <- gtdclean %>%
+  filter(iyear >= 2012) %>%
+  group_by(iyear) %>%
+  summarise(
+    num_attacks = n(),
+    avg_injuries = mean(nwound, na.rm = TRUE), 
+    avg_deaths = mean(nkill, na.rm = TRUE),
+    max_deaths = max(nkill, na.rm = TRUE), 
+    total_deaths = sum(nkill, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    avg_injuries = round(avg_injuries, 2),
+    avg_deaths = round(avg_deaths, 2)
+  )
+
+knitr::kable(byyear_stats, caption = "Yearly Terrorism Stats (2012+)")
+```
+
+
+```{r}
+ggplot(byyear_stats, aes(x = iyear, y= total_deaths)) + 
+  geom_line() +
+  geom_point() +
+  labs(
+    title = "Total Deaths from Terrorist Attacks (2012+)",
+    x = "Year",
+    y = "Total Deaths"
+  ) +
+  theme_minimal()
+
+ggplot(byyear_stats, aes(x = iyear, y= avg_injuries)) + 
+  geom_line() +
+  geom_point() +
+  labs(
+    title = "Average Injuries from Terrorist Attacks (2012+)",
+    x = "Year",
+    y = "Average Injuries"
+  ) +
+  theme_minimal()
+
+ggplot(byyear_stats, aes(x = iyear, y= avg_deaths)) + 
+  geom_line() +
+  geom_point() +
+  labs(
+    title = "Average Deaths from Terrorist Attacks (2012+)",
+    x = "Year",
+    y = "Average Deaths"
+  ) +
+  theme_minimal()
+```
+```{r}
+gtdclean <- gtdclean %>%
+mutate(region_name = case_when(
+    region == 1  ~ "North America",
+    region == 2  ~ "Central America & Caribbean",
+    region == 3  ~ "South America",
+    region == 4  ~ "East Asia",
+    region == 5  ~ "Southeast Asia",
+    region == 6  ~ "South Asia",
+    region == 7  ~ "Central Asia",
+    region == 8  ~ "Western Europe",
+    region == 9  ~ "Eastern Europe",
+    region == 10 ~ "Middle East & North Africa",
+    region == 11 ~ "Sub-Saharan Africa",
+    region == 12 ~ "Australasia & Oceania",
+    TRUE ~ "Other"
+  ))
+
+region_year_stats <- gtdclean %>%
+  filter(iyear >= 2012) %>%
+  group_by(iyear, region_name) %>%
+  summarise(
+    total_deaths = sum(nkill, na.rm = TRUE),
+    avg_deaths   = mean(nkill, na.rm = TRUE),
+    avg_injuries = mean(nwound, na.rm = TRUE),
+    n_attacks    = n(),
+    .groups = "drop"
+  )
+
+
+region_plot1 <- region_year_stats %>%
+  filter(region_name %in% c(
+    "North America",
+    "Central America & Caribbean",
+    "South America",
+    "East Asia",
+    "Southeast Asia",
+    "South Asia"
+  ))
+
+region_plot2 <- region_year_stats %>%
+  filter(region_name %in% c(
+    "Central Asia",
+    "Western Europe",
+    "Eastern Europe",
+    "Middle East & North Africa",
+    "Sub-Saharan Africa",
+    "Australasia & Oceania"
+  ))
+
+# Average Deaths Plots
+ggplot(region_plot1, aes(x = iyear, y = avg_deaths, color = region_name)) +
+  geom_line() +
+  labs(title = "Terrorism Average Deaths (Regions Group 1)") +
+  theme(legend.text = element_text(size = 6))
+
+ggplot(region_plot2, aes(x = iyear, y = avg_deaths, color = region_name)) +
+  geom_line() +
+  labs(title = "Terrorism Average Deaths (Regions Group 2)") +
+  theme(legend.text = element_text(size = 6))
+
+#Average Injuries Plots
+ggplot(region_plot1, aes(x = iyear, y = avg_injuries, color = region_name)) +
+  geom_line() +
+  labs(title = "Terrorism Average Injuries (Regions Group 1)") +
+  theme(legend.text = element_text(size = 6))
+
+ggplot(region_plot2, aes(x = iyear, y = avg_injuries, color = region_name)) +
+  geom_line() +
+  labs(title = "Terrorism Average Injuries (Regions Group 2)") +
+  theme(legend.text = element_text(size = 6))
+
+#Attack frequency
+ggplot(region_plot1, aes(x = iyear, y = n_attacks, color = region_name)) +
+  geom_line() +
+  labs(title = "Attack Frequency (Regions Group 1)") +
+  theme(legend.text = element_text(size = 6))
+
+ggplot(region_plot2, aes(x = iyear, y = n_attacks, color = region_name)) +
+  geom_line() +
+  labs(title = "Attack Frequency (Regions Group 2)") +
+  theme(legend.text = element_text(size = 6))
+```
+```{r}
+# Attack frequency (only general categories)
+ggplot(gtd_data, aes(x = reorder(attacktype1_txt, attacktype1_txt, length))) +
+  geom_bar() +
+  coord_flip() +
+  labs(
+    title = "Frequency of Attack Types",
+    x = "Attack Type",
+    y = "Count"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+# Weapon types
+top_weapons <- gtdclean %>%
+  count(weaptype1_txt, sort = TRUE) %>%
+  slice_head(n = 10)
+
+ggplot(top_weapons, aes(x = reorder(weaptype1_txt, n), y = n)) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    title = "Top 10 Weapon Types",
+    x = "Weapon Type",
+    y = "Number of Attacks"
+  ) +
+  theme_minimal()
+
+```
+
+```{r}
+attack_severity <- gtdclean %>%
+  group_by(attacktype1_txt) %>%
+  summarise(avg_deaths = mean(nkill, na.rm = TRUE)) %>%
+  arrange(desc(avg_deaths)) %>%
+  slice_head(n = 10)
+
+ggplot(attack_severity, aes(x = reorder(attacktype1_txt, avg_deaths), y = avg_deaths)) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    title = "Most Lethal Attack Types (Avg Deaths)",
+    x = "Attack Type",
+    y = "Average Deaths"
+  ) +
+  theme_minimal()
+
+```
