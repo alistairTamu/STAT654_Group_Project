@@ -222,6 +222,15 @@ top_weapons <- gtdclean %>%
   count(weaptype1_txt, sort = TRUE) %>%
   slice_head(n = 10)
 
+top_weapons <- gtdclean %>%
+  mutate(weaptype1_txt = ifelse(
+    weaptype1_txt == "Vehicle (not to include vehicle-borne explosives, i.e., car or truck bombs)", 
+    "Vehicle",
+    weaptype1_txt
+  )) %>%
+  count(weaptype1_txt, sort = TRUE) %>%
+  slice_head(n = 10)
+
 ggplot(top_weapons, aes(x = reorder(weaptype1_txt, n), y = n)) +
   geom_col() +
   coord_flip() +
