@@ -9,3 +9,11 @@ modeling/analysis.
 
 FirstLook.ipynb - A very early look at the dataset, just looking at the data size and certain variables, with some
 notes on how to lay out the project.
+
+Code Word.docx - Plain text R Code and outputs (the reason it's in docx format) for some preliminary EDA
+
+Tables Code.R - Code used to generate tables for our presentation
+
+analysis.Rmd - Code used to compare the models outputs and general predictive ability
+
+models.ipynb - Code to clean data and generate/run the various models
