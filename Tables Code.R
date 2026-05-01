@@ -1,5 +1,7 @@
+# Classes used for Casualty measures
 classes <- c("No Casualty", "Low", "Medium", "High")
 
+# Measures used
 make_class_table <- function(precision, recall, f1, support, model_name) {
   tibble(
     Class     = classes,
@@ -11,6 +13,7 @@ make_class_table <- function(precision, recall, f1, support, model_name) {
     knitr::kable(caption = paste("Classification Report —", model_name))
 }
 
+# Table for Logistic
 make_class_table(
   precision = c(0.77, 0.68, 0.42, 0.20),
   recall    = c(0.72, 0.50, 0.41, 0.57),
@@ -19,6 +22,7 @@ make_class_table(
   model_name = "Logistic Regression"
 )
 
+# Table for RF
 make_class_table(
   precision = c(0.78, 0.68, 0.44, 0.21),
   recall    = c(0.74, 0.52, 0.41, 0.60),
@@ -27,6 +31,7 @@ make_class_table(
   model_name = "Random Forest"
 )
 
+# Table for XGBoost
 make_class_table(
   precision = c(0.78, 0.61, 0.48, 0.40),
   recall    = c(0.76, 0.70, 0.47, 0.11),
@@ -35,6 +40,7 @@ make_class_table(
   model_name = "XGBoost"
 )
 
+# Table for LightGBM
 make_class_table(
   precision = c(0.80, 0.68, 0.45, 0.20),
   recall    = c(0.74, 0.53, 0.36, 0.67),
@@ -43,7 +49,7 @@ make_class_table(
   model_name = "LightGBM"
 )
 
-
+# Comparison Table
 comparison <- tibble(
   Model       = c("Regression RF (converted)", "Logistic Regression", 
                   "Random Forest", "XGBoost", "LightGBM"),
@@ -56,12 +62,14 @@ knitr::kable(comparison,
              col.names = c("Model", "Macro F1", "Accuracy"),
              caption   = "Regression vs Classification — Final Comparison")
 
+# Regression results table for each model
 regression_results <- tibble(
   Model    = c("Linear", "Ridge", "Lasso", "Elastic Net", "RF", "XGBoost", "LightGBM"),
   RMSE_sev    = c(12.089, 12.091, 12.094, 12.136, 11.607, 11.741, 11.692),
   R2_sev      = c(0.049, 0.049, 0.049, 0.042, 0.124, 0.103, 0.111)
 ) 
 
+# Organized table
 knitr::kable(regression_results,
              col.names = c("Model", "RMSE", "R²"),
              caption = "Regression Model Results") %>%
@@ -74,6 +82,30 @@ knitr::kable(regression_results,
   kableExtra::column_spec(1, width = "8em") %>%
   kableExtra::column_spec(2, width = "6em") %>%
   kableExtra::column_spec(3, width = "6em")
+
+# Comparison table for all models
+results_comparison <- tibble(
+  Model    = c("Linear (Reg)", "Ridge (Reg)", "Lasso (Reg)", "Elastic Net (Reg)",
+               "RF (Reg)", "XGBoost (Reg)", "LightGBM (Reg)", "Logistic (Clf)",
+               "RF (Clf)", "XGBoost (Clf)", "LightGBM (Clf)"),
+  Macro_F1 = c(0.226, 0.226, 0.226, 0.225, 0.280, 0.268, 0.272, 0.486, 0.514, 0.510, 0.520),
+  Accuracy = c(0.386, 0.386, 0.386, 0.388, 0.427, 0.422, 0.425, 0.605, 0.621, 0.629, 0.629),
+  R2_sev      = c(0.049, 0.049, 0.049, 0.042, 0.124, 0.103, 0.111, "N/A", "N/A", "N/A", "N/A"),
+) 
+
+knitr::kable(results_comparison,
+             col.names = c("Model", "Macro_F1", "Accuracy", "R²"),
+             caption = "Regression vs Classification Comparison",
+             na        = "—") %>%  
+  kableExtra::kable_styling(
+    bootstrap_options = c("striped", "hover"),
+    full_width        = FALSE,
+    position          = "center"
+  ) %>%
+  kableExtra::column_spec(1, width = "8em") %>%
+  kableExtra::column_spec(2, width = "6em") %>%
+  kableExtra::column_spec(3, width = "6em") %>%
+  kableExtra::column_spec(4, width = "6em")
 
 
 
