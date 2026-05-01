@@ -10,7 +10,7 @@ modeling/analysis.
 FirstLook.ipynb - A very early look at the dataset, just looking at the data size and certain variables, with some
 notes on how to lay out the project.
 
-Code Word.docx - Plain text R Code and outputs (the reason it's in docx format) for some preliminary EDA
+Code2.R - R Code for some preliminary EDA
 
 Tables Code.R - Code used to generate tables for our presentation
 
