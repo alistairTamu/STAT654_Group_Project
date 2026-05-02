@@ -1,6 +1,7 @@
 STAT 654 Final Project
+Kiara Bermudez, Alistair Byrne, Meredith Santiago
 
-Just wanted to leave a short description of each file in this github.
+### Document Descriptions
 
 GTDEDA_Final.ipynb - The final cleaned up version of visualization/summary statistics for the dataset.
 
@@ -17,3 +18,5 @@ Tables Code.R - Code used to generate tables for our presentation
 analysis.Rmd - Code used to compare the models outputs and general predictive ability
 
 models.ipynb - Code to clean data and generate/run the various models
+
+Final_Model_code.ipynb - Full code cleaning data, running models, hyperparameter tuning and evaluating.
